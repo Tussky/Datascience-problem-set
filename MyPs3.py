@@ -10,6 +10,8 @@
 import pandas as pd
 import numpy as np 
 import plotly.express as px
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 new_testament = pd.read_pickle("./pickles/tisch.pickle")
 old_tesament = pd.read_pickle("./pickles/sept.pickle") 
@@ -38,13 +40,28 @@ for verse in matthew_by_verse:
 
 matrix = pd.DataFrame(data=new_rows).fillna(value=0)
 matrix.index = matthew_by_verse.index
-# 
 
-    # %%
+
+# %%
 # 2. Apply PCA to this matrix and interpret the results. Interpret top loadings—what terms drive the first three principal components?
-# 
+scaler = StandardScaler()
+pca = PCA(n_components=10)
+X_scaled = scaler.fit_transform(matrix)
+X_pca = pca.fit_transform(X_scaled)
+
+my_pca = pd.DataFrame(
+    X_pca,
+    index = matrix.index
+)
+
+print("Explained variance ratio", pca.explained_variance_ratio_)
 # 3. Create a scree plot and interpret the plot. 
-# 
+
+px.line(
+    x = np.arange(1, len(pca.explained_variance_)+1),
+    y = pca.explained_variance_
+)
+
 # 4. Plot results in PCA space and interpret the plot. Use color to plot trends you might expect to see (e.g. author, genre, etc.).
 # 
 # 5. Quantify separation between clusters. e.g. separation between Pauline books and Johannine books. Do this for 3 different clusters.
