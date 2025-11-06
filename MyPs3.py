@@ -1,0 +1,56 @@
+# %% [markdown]
+# # Dimensional Reduction
+# 
+# Name: Isaac Anderson
+# 
+# Date: Nov 1st 2025
+
+# %%
+# Imports and DataFrames
+import pandas as pd
+import numpy as np 
+import plotly.express as px
+
+new_testament = pd.read_pickle("./pickles/tisch")
+old_tesament = pd.read_pickle("./pickles/sept") 
+strongs = 
+
+# %% [markdown]
+# 1. Build a matrix where the rows are small analyzable chunks (larger than a word, less than a book). The columns will be the Strong's numbers and the values are the frequency of those lemmas within your chunk.
+# %%
+
+# Reading in Old and New Testament
+nt = new_testament.groupby(['book','chapter','verse'])['text'].agg(lambda x : " ".join(x)).to_frame()
+nt.reset_index().set_index(['book','chapter','verse'])
+nt_chunks = nt['text'].reset_index(drop=True).to_frame()
+
+ot = old_tesament.groupby(['book','chapter','verse'])['text'].agg(lambda x : " ".join(x)).to_frame()
+ot.reset_index().set_index(['book','chapter','verse'])
+ot_chunks = ot['text'].reset_index(drop=True).to_frame()
+
+# 
+
+# 
+
+# %%
+# 2. Apply PCA to this matrix and interpret the results. Interpret top loadings—what terms drive the first three principal components?
+# 
+# 3. Create a scree plot and interpret the plot. 
+# 
+# 4. Plot results in PCA space and interpret the plot. Use color to plot trends you might expect to see (e.g. author, genre, etc.).
+# 
+# 5. Quantify separation between clusters. e.g. separation between Pauline books and Johannine books. Do this for 3 different clusters.
+
+# %% [markdown]
+# 6. Repeat steps 1-5 but with the parts of speech feature instead of the Strong's numbers.
+
+# %%
+7. Use a KNN with a k-fold cross validation for hyper parameter tuning to predict the author of a given pericope (small chunk you must define).
+
+# %% [markdown]
+# # Side Quests
+
+# %% [markdown]
+# Perform LDA instead of PCA on the matrix in 1.
+
+
