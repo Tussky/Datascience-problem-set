@@ -11,28 +11,36 @@ import pandas as pd
 import numpy as np 
 import plotly.express as px
 
-new_testament = pd.read_pickle("./pickles/tisch")
-old_tesament = pd.read_pickle("./pickles/sept") 
-strongs = 
+new_testament = pd.read_pickle("./pickles/tisch.pickle")
+old_tesament = pd.read_pickle("./pickles/sept.pickle") 
+strongs = pd.read_pickle("./pickles/strongs")
 
 # %% [markdown]
-# 1. Build a matrix where the rows are small analyzable chunks (larger than a word, less than a book). The columns will be the Strong's numbers and the values are the frequency of those lemmas within your chunk.
+    # 1. Build a matrix where the rows are small analyzable chunks (larger than a word, less than a book). The columns will be the Strong's numbers and the values are the frequency of those lemmas within your chunk.
 # %%
 
 # Reading in Old and New Testament
-nt = new_testament.groupby(['book','chapter','verse'])['text'].agg(lambda x : " ".join(x)).to_frame()
+nt = new_testament.groupby(['book','chapter','verse'])[['str','text']].agg(lambda x : " ".join(x))
 nt.reset_index().set_index(['book','chapter','verse'])
-nt_chunks = nt['text'].reset_index(drop=True).to_frame()
 
-ot = old_tesament.groupby(['book','chapter','verse'])['text'].agg(lambda x : " ".join(x)).to_frame()
-ot.reset_index().set_index(['book','chapter','verse'])
-ot_chunks = ot['text'].reset_index(drop=True).to_frame()
+matthew = new_testament.query("book == 40")
+
 
 # 
+# matrix = pd.DataFrame(columns=matthew['str'].unique())
+matthew_by_verse = matthew.groupby(["chapter","verse"])['str'].agg(lambda x : pd.Series(" ".join(x).split()))
 
+
+new_rows = []
+for verse in matthew_by_verse:
+    verse_counts = (pd.Series(verse).value_counts())
+    new_rows.append(verse_counts)
+
+matrix = pd.DataFrame(data=new_rows).fillna(value=0)
+matrix.index = matthew_by_verse.index
 # 
 
-# %%
+    # %%
 # 2. Apply PCA to this matrix and interpret the results. Interpret top loadings—what terms drive the first three principal components?
 # 
 # 3. Create a scree plot and interpret the plot. 
