@@ -18,14 +18,9 @@ import pandas as pd
 import numpy as np 
 filename = "./../Data/Gamma/210601_NBS295-106/20210601_152616_mass-001.hdf5"
 with h5py.File(filename, 'r') as hdf_file:
-    print(hdf_file)
-    print(hdf_file.keys())
-    print(np.array(hdf_file['chan101']['filt_value']))
-    print(type(hdf_file))
     all_channels = pd.DataFrame(
         columns = ['channel_num', 'peak_vals']
     )
-    all_channels['channel_num'] = hdf_file.keys()
     
     for channel_name in hdf_file:
         all_channels.loc[len(all_channels)] = [channel_name, hdf_file[channel_name]['filt_value']]
