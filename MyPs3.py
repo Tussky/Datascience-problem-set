@@ -70,7 +70,7 @@ px.line(
 # 6. Repeat steps 1-5 but with the parts of speech feature instead of the Strong's numbers.
 
 # %%
-7. Use a KNN with a k-fold cross validation for hyper parameter tuning to predict the author of a given pericope (small chunk you must define).
+# 7. Use a KNN with a k-fold cross validation for hyper parameter tuning to predict the author of a given pericope (small chunk you must define).
 
 # %% [markdown]
 # # Side Quests
