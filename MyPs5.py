@@ -10,8 +10,9 @@
 # 1. Use the best peak-finding tools from class to find the same 5 most prominent peaks in every channel within one data file (this may involve finding more than 5 peaks and figuring out an algorithm to find which peaks should map to which.)
 
 # %% [markdown]
-# ### Reading in files and necessary packages.
+# #### Reading in files and necessary packages.
 import h5py
+import nbformat
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
@@ -21,16 +22,17 @@ from scipy.signal import find_peaks
 filename = "./../Data/Gamma/210601_NBS295-106/20210601_152616_mass-001.hdf5"
 with h5py.File(filename, 'r') as hdf_file:
     channels = pd.DataFrame(
-        columns = ['channel_num', 'peak_vals']
+        columns = ['peak_vals'],
+        index = hdf_file.keys(),
     )
     
-    channels.set_index("channel_num", inplace=True)
     for channel_name in hdf_file:
         channels.loc[channel_name] = [np.array(hdf_file[channel_name]['filt_value'])]
         
 
 # %% [markdown]
-# ### Histograming
+# #### Histograming
+    channels['counts'], channels['edges'] = zip(*channels['peak_vals'].apply(np.histogram, args=(10_000,)))
 
 #%%
 # 2. Fit these peaks with a Gaussian on top of a linear background.
