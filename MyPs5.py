@@ -9,6 +9,29 @@
 # ### Peak Finding
 # 1. Use the best peak-finding tools from class to find the same 5 most prominent peaks in every channel within one data file (this may involve finding more than 5 peaks and figuring out an algorithm to find which peaks should map to which.)
 
+# %% [markdown]
+# ### Reading in files and necessary packages.
+import h5py
+import plotly.express as px
+import plotly.graph_objects as go
+import pandas as pd
+import numpy as np 
+filename = "./../Data/Gamma/210601_NBS295-106/20210601_152616_mass-001.hdf5"
+with h5py.File(filename, 'r') as hdf_file:
+    print(hdf_file)
+    print(hdf_file.keys())
+    print(np.array(hdf_file['chan101']['filt_value']))
+    print(type(hdf_file))
+    all_channels = pd.DataFrame(
+        columns = ['channel_num', 'peak_vals']
+    )
+    all_channels['channel_num'] = hdf_file.keys()
+    
+    for channel_name in hdf_file:
+        all_channels.loc[len(all_channels)] = [channel_name, hdf_file[channel_name]['filt_value']]
+    display(all_channels)
+        
+
 
 
 #%%
