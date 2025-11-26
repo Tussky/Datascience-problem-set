@@ -28,9 +28,9 @@ with h5py.File(filename, 'r') as hdf_file:
     )
     
     for channel_name in hdf_file:
-        going_in = np.array(hdf_file[channel_name]['filt_value'])
-        going_in = going_in[(0 < going_in) & (going_in < np.percentile(going_in, 99))]
-        channels.loc[channel_name] = [going_in]
+        channels.loc[channel_name] = [np.array(hdf_file[channel_name]['filt_value'])]
+    # saving popular channels for easy use
+    ch101 = channels
         
 
 # %% [markdown]
