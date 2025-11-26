@@ -18,6 +18,7 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np 
 from scipy.signal import find_peaks
+from utils.ps5 import channel_to_df
 
 filename = "./../Data/Gamma/210601_NBS295-106/20210601_152616_mass-001.hdf5"
 with h5py.File(filename, 'r') as hdf_file:
@@ -28,11 +29,14 @@ with h5py.File(filename, 'r') as hdf_file:
     
     for channel_name in hdf_file:
         channels.loc[channel_name] = [np.array(hdf_file[channel_name]['filt_value'])]
+    # saving popular channels for easy use
+    ch101 = channels
         
 
 # %% [markdown]
 # #### Histograming
     channels['counts'], channels['edges'] = zip(*channels['peak_vals'].apply(np.histogram, args=(10_000,)))
+    channels['midpoints'] =  [0.5 * (channel_edges[1:] + channel_edges[:-1]) for channel_edges in channels['edges']]
 
 #%%
 # 2. Fit these peaks with a Gaussian on top of a linear background.
