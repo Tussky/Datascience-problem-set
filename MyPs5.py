@@ -23,7 +23,7 @@ from utils.ps5 import channel_to_df
 filename = "./../Data/Gamma/210601_NBS295-106/20210601_152616_mass-001.hdf5"
 with h5py.File(filename, 'r') as hdf_file:
     channels = pd.DataFrame(
-        columns = ['peak_vals'],
+        columns = ['energy'],
         index = hdf_file.keys(),
     )
     
@@ -35,9 +35,9 @@ with h5py.File(filename, 'r') as hdf_file:
 
 # %% [markdown]
 # #### Histograming
-channels['counts'], channels['edges'] = zip(*channels['peak_vals'].apply(np.histogram, args=(10_000,)))
+channels['counts'], channels['edges'] = zip(*channels['energy'].apply(np.histogram, args=(10_000,)))
 channels['midpoints'] =  [0.5 * (channel_edges[1:] + channel_edges[:-1]) for channel_edges in channels['edges']]
-
+channels['peak_locs'] = channels['energy'].apply(find_peaks)
 # Saving popular channels for quick use
 chan1 = channel_to_df(channels.loc["chan1"])
 chan99 = channel_to_df(channels.loc["chan99"])
