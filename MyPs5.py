@@ -28,19 +28,26 @@ with h5py.File(filename, 'r') as hdf_file:
     )
     
     for channel_name in hdf_file:
-        channels.loc[channel_name] = [np.array(hdf_file[channel_name]['filt_value'])]
+        going_in = np.array(hdf_file[channel_name]['filt_value'])
+        going_in = going_in[(0 < going_in) & (going_in < np.percentile(going_in, 99))]
+        channels.loc[channel_name] = [going_in]
     # saving popular channels for easy use
     ch101 = channels
         
 
 # %% [markdown]
-# #### Histograming
+# #### Histograming & columns
 channels['counts'], channels['edges'] = zip(*channels['energy'].apply(np.histogram, args=(10_000,)))
 channels['midpoints'] =  [0.5 * (channel_edges[1:] + channel_edges[:-1]) for channel_edges in channels['edges']]
-channels['peak_locs'] = channels['energy'].apply(find_peaks)
+peaks, peaks_data = zip(*channels['energy'].apply(find_peaks, prominence=4))
+peaks = pd.Series(peaks)
+peaks_data = pd.Series(peaks_data)
+channels['prominent_peaks'] = [   
+    peaks[loc][prominent_peak]
+    for loc, prominent_peak in enumerate(eight_peaks)
+]
 # Saving popular channels for quick use
-chan1 = channel_to_df(channels.loc["chan1"])
-chan99 = channel_to_df(channels.loc["chan99"])
+chan1 = channels.loc['chan1']
 #%%
 # 2. Fit these peaks with a Gaussian on top of a linear background.
 
