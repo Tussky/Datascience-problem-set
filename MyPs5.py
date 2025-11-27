@@ -1,8 +1,8 @@
 # %% [markdown]
 # # Spectral Co-Adding
-# 
+#
 # Name: Isaac Anderson
-# 
+#
 # Date: 20th Nov 2025
 
 # %% [markdown]
@@ -16,39 +16,43 @@ import nbformat
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
-import numpy as np 
+import numpy as np
 from scipy.signal import find_peaks
 from utils.ps5 import channel_to_df
 
 filename = "./../Data/Gamma/210601_NBS295-106/20210601_152616_mass-001.hdf5"
-with h5py.File(filename, 'r') as hdf_file:
+with h5py.File(filename, "r") as hdf_file:
     channels = pd.DataFrame(
-        columns = ['energy'],
-        index = hdf_file.keys(),
+        columns=["energy"],
+        index=hdf_file.keys(),
     )
-    
+
     for channel_name in hdf_file:
-        going_in = np.array(hdf_file[channel_name]['filt_value'])
+        going_in = np.array(hdf_file[channel_name]["filt_value"])
         going_in = going_in[(0 < going_in) & (going_in < np.percentile(going_in, 99))]
         channels.loc[channel_name] = [going_in]
     # saving popular channels for easy use
     ch101 = channels
-        
+
 
 # %% [markdown]
 # #### Histograming & columns
-channels['counts'], channels['edges'] = zip(*channels['energy'].apply(np.histogram, args=(10_000,)))
-channels['midpoints'] =  [0.5 * (channel_edges[1:] + channel_edges[:-1]) for channel_edges in channels['edges']]
-peaks, peaks_data = zip(*channels['energy'].apply(find_peaks, prominence=4))
+channels["counts"], channels["edges"] = zip(
+    *channels["energy"].apply(np.histogram, args=(10_000,))
+)
+channels["midpoints"] = [
+    0.5 * (channel_edges[1:] + channel_edges[:-1])
+    for channel_edges in channels["edges"]
+]
+peaks, peaks_data = zip(*channels["energy"].apply(find_peaks, prominence=4))
 peaks = pd.Series(peaks)
 peaks_data = pd.Series(peaks_data)
-channels['prominent_peaks'] = [   
-    peaks[loc][prominent_peak]
-    for loc, prominent_peak in enumerate(eight_peaks)
+channels["prominent_peaks"] = [
+    peaks[loc][prominent_peak] for loc, prominent_peak in enumerate(eight_peaks)
 ]
 # Saving popular channels for quick use
-chan1 = channels.loc['chan1']
-#%%
+chan1 = channels.loc["chan1"]
+# %%
 # 2. Fit these peaks with a Gaussian on top of a linear background.
 
 # %% [markdown]
@@ -67,7 +71,7 @@ chan1 = channels.loc['chan1']
 
 # %% [markdown]
 # ## Side Quest -- DTW Optimization
-# 
+#
 # Repeat steps 7-10 and optimize the various DTW options:
 # ```
 # alignment_windowed = dtw(s1, s2, keep_internals=True,
@@ -76,7 +80,5 @@ chan1 = channels.loc['chan1']
 
 # %% [markdown]
 # ## Side Quest -- Wavelets for Drift Correction
-# 
+#
 # Inverse of noise reduction. We're keeping the noise, but removing the slow time constant terms!
-
-
