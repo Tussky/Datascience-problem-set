@@ -1,4 +1,6 @@
 __pycache__
 .vscode
-.xml
-.xhtml
+SEPTUAGINT.xml
+TISCHENDORF.xml
+rmac_df
+strongs-dictionary.xhtml
