@@ -39,6 +39,10 @@ with h5py.File(filename, "r") as hdf_file:
         going_in = going_in[(0 < going_in) & (going_in < np.percentile(going_in, 99))]
         channels.loc[channel_name] = [going_in]
 
+# setting plotly preferences
+import plotly.io as pio 
+pio.templates.default = "plotly_dark"
+
 # %% [markdown]
 # ##### Histograming & columns
 
@@ -62,9 +66,11 @@ peaks, peaks_data = map(pd.Series, zip(*channels["counts"].apply(find_peaks, pro
 top8_indices = peaks_data.str["prominences"].apply(np.argsort).str[:8]
 
 # finding the locations of our prominent peaks relative to the counts array.
-channels["prominent_peaks"] = [
+channels["prom_peak_vals"] = [
     peaks[index][peak_loc] for index, peak_loc in enumerate(top8_indices)
 ]
+
+channels["prom_peak_indices"] = top8_indices.values
 
 # finding the prominences of each of our prominent peaks
 channels["prominence_of_peaks"] = [
@@ -90,9 +96,26 @@ channels["peak_start_stop_index"] = [
 # Saving popular channels for quick use
 chan1 = channels.loc["chan1"]
 chan99 = channels.loc["chan99"]
+display(chan1)
 
 # %% [markdown]
 # ##### Making sense of this graphically
+
+# %%
+# Showing the prominent peaks on the histogram on channel 1
+hist_peaks = px.line(
+    y = chan1['counts'],
+    labels = {"x":"energy", "y":"frequency"}
+)
+
+# peaks = px.scatter(
+#     y = chan1['prom_peak_vals'],
+#     x = chan1['prom_peak_indices'],
+#     color_discrete_sequence=['red']
+# )
+
+# hist_peaks.add_traces(peaks.data).show()
+hist_peaks
 
 # %% [markdown]
 # Finding the matching peaks
