@@ -1,4 +1,4 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:system",
-    "python-envs.pythonProjects": []
+    "editor.cursorStyle": "underline", // different cursor
+    "notebook.lineNumbers": "on", // show line numbers in book
 }

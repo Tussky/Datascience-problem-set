@@ -25,8 +25,11 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 from scipy.signal import find_peaks
-from utils.ps5 import channel_to_df
 
+# my utils
+from utils.spectral import plot_spectra_on_histogram
+
+# reading in channels into dataframe
 filename = "./../Data/Gamma/210601_NBS295-106/20210601_152616_mass-001.hdf5"
 with h5py.File(filename, "r") as hdf_file:
     channels = pd.DataFrame(
@@ -36,7 +39,7 @@ with h5py.File(filename, "r") as hdf_file:
 
     for channel_name in hdf_file:
         going_in = np.array(hdf_file[channel_name]["filt_value"])
-        going_in = going_in[(0 < going_in) & (going_in < np.percentile(going_in, 99))]
+        going_in = going_in[(0 < going_in) & (going_in < np.percentile(going_in, 97))]
         channels.loc[channel_name] = [going_in]
 
 # setting plotly preferences
@@ -61,40 +64,20 @@ channels["midpoints"] = [
 # ##### Peak-finding with sci-py
 
 # %%
-# finding peaks
-peaks, peaks_data = map(pd.Series, zip(*channels["counts"].apply(find_peaks, prominence=4)))
-top8_indices = peaks_data.str["prominences"].apply(np.argsort).str[:8]
-
-# finding the locations of our prominent peaks relative to the counts array.
-channels["prom_peak_vals"] = [
-    peaks[index][peak_loc] for index, peak_loc in enumerate(top8_indices)
+peak_indices, peaks_data = map(pd.Series, zip(*channels["counts"].apply(find_peaks, prominence=4))) 
+top_10_peak_locs = peaks_data.str['prominences'].apply(np.argsort).str[-8:] # "locs" is an important term here: it is the index of the indices for our argsort
+channels['prominent_peak_indices'] = [
+    peak_indices[channel][locs]
+    for channel, locs in enumerate(top_10_peak_locs) # retrieving the original indices for each channel
 ]
 
-channels["prom_peak_indices"] = top8_indices.values
-
-# finding the prominences of each of our prominent peaks
-channels["prominence_of_peaks"] = [
-    peaks_data[channel]["prominences"] for channel, peak_data in enumerate(top8_indices)
-]
-
-# finding the edges, in indices, for our prominent peaks
-channels["prominent_peaks_edges"] = [
-    (
-        peaks_data[channel]["left_bases"][peak_loc],
-        peaks_data[channel]["right_bases"][peak_loc],
-    )
-    for channel, peak_loc in enumerate(top8_indices)
-]
-
-# finding the start and end location of our prominent peaks
-channels["peak_start_stop_index"] = [
-    (data["left_bases"], data["right_bases"]) for data in peaks_data
-]
-
+# %% [markdown]
+# ##### Saving channels for quick use
 
 # %%
 # Saving popular channels for quick use
 chan1 = channels.loc["chan1"]
+chan45 = channels.loc["chan45"]
 chan99 = channels.loc["chan99"]
 display(chan1)
 
@@ -102,23 +85,8 @@ display(chan1)
 # ##### Making sense of this graphically
 
 # %%
-# Showing the prominent peaks on the histogram on channel 1
-hist_peaks = px.line(
-    y = chan1['counts'],
-    labels = {"x":"energy", "y":"frequency"}
-)
-
-# peaks = px.scatter(
-#     y = chan1['prom_peak_vals'],
-#     x = chan1['prom_peak_indices'],
-#     color_discrete_sequence=['red']
-# )
-
-# hist_peaks.add_traces(peaks.data).show()
-hist_peaks
-
-# %% [markdown]
-# Finding the matching peaks
+plot_spectra_on_histogram(chan1['counts'], chan1['midpoints'], chan1['prominent_peak_indices']).show()
+plot_spectra_on_histogram(chan45['counts'], chan45['midpoints'], chan45['prominent_peak_indices']).show()
 
 # %% [markdown]
 # 2. Fit these peaks with a Gaussian on top of a linear background.
